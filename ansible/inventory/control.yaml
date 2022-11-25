@@ -1,0 +1,6 @@
+control:
+  hosts:
+    pi-control-1:
+      ansible_host: 10.4.0.101
+  vars:
+    ansible_user: pi

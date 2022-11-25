@@ -1,0 +1,6 @@
+- name: Prep Raspberry Pis
+  hosts: control
+  tasks:
+    - name: Run common tasks
+      include_role:
+        name: common
