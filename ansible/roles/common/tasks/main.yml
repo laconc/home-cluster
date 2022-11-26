@@ -1,2 +1,6 @@
-- name: Enable unattended updates
-  import_tasks: updates.yml
+#- name: Enable unattended updates
+#  import_tasks: updates.yml
+#- name: Harden the nodes
+#  import_tasks: security.yml
+- name: Install k8s dependencies
+  import_tasks: k8s.yml

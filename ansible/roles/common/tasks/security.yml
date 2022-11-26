@@ -1,0 +1,39 @@
+# Prevents SSH brute force attacks
+- name: Install fail2ban
+  become: true
+  apt:
+    name: fail2ban
+    state: present
+
+# Installs firewall
+- name: Install ufw
+  become: true
+  apt:
+    name: ufw
+    state: present
+
+# Rate limits SSH attempts
+- name: Limit ssh
+  become: true
+  community.general.ufw:
+    rule: limit
+    port: ssh
+    proto: tcp
+
+# Firewall rules
+- name: Allow needed ports
+  become: true
+  community.general.ufw:
+    rule: allow
+    port: '{{ item }}'
+  loop:
+    - SSH
+    - DNS
+    - WWW
+    - WWW Secure
+
+- name: Enable ufw and default to deny
+  become: true
+  ufw:
+    state: enabled
+    default: deny
