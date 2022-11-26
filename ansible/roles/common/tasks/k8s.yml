@@ -87,7 +87,7 @@
   become: true
   apt:
     name: containerd.io
-    update_cache: yes
+    update_cache: true
 
 - name: Install k8s packages
   become: true
