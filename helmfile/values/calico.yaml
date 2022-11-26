@@ -1,0 +1,6 @@
+installation:
+  cni:
+    type: Calico
+  calicoNetwork:
+    ipPools:
+      - cidr: 10.44.0.0/16

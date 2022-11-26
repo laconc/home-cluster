@@ -6,8 +6,9 @@
   import_tasks: updates.yml
   when: "not 'unattended-upgrades' in ansible_facts.packages"
 
-#- name: Harden the nodes
-#  import_tasks: security.yml
+- name: Harden the nodes
+  import_tasks: security.yml
+  when: "not 'ufw' in ansible_facts.packages"
 
 - name: Check k8s set up
   stat:

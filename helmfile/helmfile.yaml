@@ -1,0 +1,15 @@
+repositories:
+  - name: projectcalico
+    url: https://projectcalico.docs.tigera.io/charts
+
+templates:
+  defaults: &defaults
+    namespace: ops
+    values:
+      - ./values/{{`{{.Release.Name}}`}}.yaml
+
+releases:
+  - name: calico
+    <<: *defaults
+    chart: projectcalico/tigera-operator
+    version: 3.24.5
