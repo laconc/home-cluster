@@ -40,20 +40,9 @@
     special_time: reboot
     job: sudo /sbin/swapoff -a
 
-- name: Reboot
-  become: true
-  shell: "sleep 5 && reboot"
-  async: 1
-  poll: 0
-  when: not ansible_check_mode
-
 - name: Wait for reboot
-  wait_for_connection:
-    connect_timeout: 10
-    sleep: 5
-    delay: 5
-    timeout: 300
-  when: not ansible_check_mode
+  become: true
+  reboot:
 
 - name: Enable k8s Apt repo
   become: true
@@ -93,27 +82,19 @@
   become: true
   apt:
     pkg:
-      - kubelet
-      - kubeadm
-      - kubectl
+      - kubelet=1.24.8-00
+      - kubeadm=1.24.8-00
+      - kubectl=1.24.8-00
 
 - name: Hold kubelet
   become: true
   dpkg_selections:
-    name: kubelet
+    name: '{{ item }}'
     selection: hold
-
-- name: Hold kubeadm
-  become: true
-  dpkg_selections:
-    name: kubeadm
-    selection: hold
-
-- name: Hold kubectl
-  become: true
-  dpkg_selections:
-    name: kubectl
-    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
 
 - name: Create CNI dir
   become: true
@@ -133,6 +114,12 @@
     state: restarted
     daemon_reload: yes
     name: containerd
+
+- name: Install k8s dependencies
+  become: true
+  apt:
+    pkg:
+      - open-iscsi
 
 - name: Pull kubeadm images
   become: true

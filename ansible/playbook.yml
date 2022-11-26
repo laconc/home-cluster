@@ -34,6 +34,6 @@
     - vars.yml
   tasks:
   - name: Join cluster
-    command: kubeadm join {{ control_node_ip }}:6443 --token={{ hostvars.pi-control-1.kubeadm_token.stdout }} --discovery-token-unsafe-skip-ca-verification --ignore-preflight-errors=all
+    command: kubeadm join {{ control_node_ip }}:6443 --token={{ hostvars['pi-control-1']['kubeadm_token']['stdout'] }} --ignore-preflight-errors=all --discovery-token-unsafe-skip-ca-verification
     args:
       creates: /etc/kubernetes/kubelet.conf
