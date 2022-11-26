@@ -15,29 +15,35 @@
 # Rate limits SSH attempts
 - name: Limit ssh
   become: true
-  community.general.ufw:
+  ufw:
     rule: limit
     port: ssh
     proto: tcp
 
 # Firewall rules
-- name: Allow needed ports
+- name: Allow some access from the main VLAN
   become: true
-  community.general.ufw:
+  ufw:
     rule: allow
     port: '{{ item }}'
     proto: tcp
+    src: '10.1.0.0/24'
   loop:
     - 22
     - 53
     - 443
     - 6443
-    - 2379
-    - 2380
-    - 10250
-    - 10257
-    - 10259
-    - 30000:32767
+
+- name: Allow all from inside the VLAN
+  become: true
+  ufw:
+    rule: allow
+    src: '10.4.0.0/24'
+
+- name: Enable logging
+  become: true
+  ufw:
+    logging: on
 
 - name: Enable ufw and default to deny
   become: true
