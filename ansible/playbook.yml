@@ -5,33 +5,34 @@
       include_role:
         name: common
 
-#- name: Create k8s control node
-#  hosts: control
-#  become: true
-#  vars_files:
-#    vars.yml
-#  tasks:
-#    - name: Generate token
-#      command: kubeadm token generate
-#      register: kubeadm_token
-#      run_once: true
-#
-#    - name: Cluster init
-#      shell: 'kubeadm init --pod-network-cidr 10.44.0.0/16 --token {{ kubeadm_token.stdout }}'
-#      args:
-#        creates: /etc/kubernetes/kubelet.conf
-#
-#    - name: Fetch the config
-#      fetch:
-#        src: /etc/kubernetes/admin.conf
-#        dest: .kube/pi_cluster
-#        flat: true
-#
-#- name: Join the worker nodes
-#  hosts: workers
-#  become: true
-#  tasks:
-#  - name: Join cluster
-#    command: kubeadm join --token={{ kubeadm_token.stdout }} {{ control_node_ip }}
-#    args:
-#      creates: /etc/kubernetes/kubelet.conf
+- name: Create k8s control node
+  hosts: control
+  become: true
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Generate token
+      command: kubeadm token generate
+      register: kubeadm_token
+
+    - name: Cluster init
+      shell: 'kubeadm init --pod-network-cidr 10.44.0.0/16 --token {{ kubeadm_token.stdout }}'
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+
+    - name: Fetch the config
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: /tmp/pi_cluster_kube_context
+        flat: true
+
+- name: Join the worker nodes
+  hosts: workers
+  become: true
+  vars_files:
+    - vars.yml
+  tasks:
+  - name: Join cluster
+    command: kubeadm join {{ control_node_ip }}:6443 --token={{ hostvars.control.kubeadm_token.stdout }} --discovery-token-unsafe-skip-ca-verification --ignore-preflight-errors=all
+    args:
+      creates: /etc/kubernetes/kubelet.conf
