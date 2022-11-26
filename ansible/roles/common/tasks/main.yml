@@ -1,6 +1,19 @@
-#- name: Enable unattended updates
-#  import_tasks: updates.yml
+- name: Gather the package facts
+  package_facts:
+    manager: apt
+
+- name: Enable unattended updates
+  import_tasks: updates.yml
+  when: "not 'unattended-upgrades' in ansible_facts.packages"
+
 #- name: Harden the nodes
 #  import_tasks: security.yml
+
+- name: Check k8s set up
+  stat:
+    path: /etc/containerd/config.toml
+  register: k8s_config
+
 - name: Install k8s dependencies
   import_tasks: k8s.yml
+  when: 'not k8s_config.stat.exists'
