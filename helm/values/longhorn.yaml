@@ -1,0 +1,6 @@
+ingress:
+  enabled: true
+  host: longhorn.64f.dev
+  tls: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt

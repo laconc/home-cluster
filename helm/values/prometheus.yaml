@@ -1,0 +1,122 @@
+defaultRules:
+  disabled:
+    etcdHighNumberOfFailedGRPCRequests: true
+
+kubeEtcd:
+  enabled: true
+  service:
+    enabled: true
+    port: 2381
+    targetPort: 2381
+
+alertmanager:
+  ingress:
+    enabled: true
+    hosts:
+      - alertmanager.64f.dev
+    paths:
+      - /
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    tls:
+      - secretName: alertmanager.local-tls
+        hosts:
+        - alertmanager.64f.dev
+
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    externalUrl: https://alertmanager.64f.dev
+
+  config:
+    route:
+      group_by: ['alertname']
+      group_wait: 2s
+      group_interval: 30s
+      repeat_interval: 4h
+
+grafana:
+  adminPassword: password
+  defaultDashboardsTimezone: America/Chicago
+  ingress:
+    enabled: true
+    hosts:
+      - grafana.64f.dev
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    tls:
+      - secretName: grafana.local-tls
+        hosts:
+        - grafana.64f.dev
+
+prometheus:
+  ingress:
+    enabled: true
+    hosts:
+      - prometheus.64f.dev
+    paths:
+      - /
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    tls:
+      - secretName: prometheus.local-tls
+        hosts:
+        - prometheus.64f.dev
+
+  prometheusSpec:
+    externalUrl: https://prometheus.64f.dev
+
+    # Do not require new PrometheusRule to have all the helm labels in order to match
+    ruleSelectorNilUsesHelmValues: false
+
+    additionalScrapeConfigs:
+      - job_name: kubernetes-service-endpoints
+        kubernetes_sd_configs:
+        - {role: service}
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+        - action: drop
+          regex: (kube-system|prom)
+          source_labels: [__meta_kubernetes_namespace]
+        - action: keep
+          regex: .*metrics
+          source_labels: [__meta_kubernetes_service_port_name]
+        - action: replace
+          regex: (https?)
+          source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+          target_label: __scheme__
+        - action: replace
+          regex: (.+)
+          source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+          target_label: __metrics_path__
+        - action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+          target_label: __address__
+        - {action: labelmap, regex: __meta_kubernetes_service_label_(.+)}
+        - action: replace
+          source_labels: [__meta_kubernetes_namespace]
+          target_label: kubernetes_namespace
+        - action: replace
+          source_labels: [__meta_kubernetes_service_name]
+          target_label: kubernetes_name
+
+    hostNetwork: true
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi

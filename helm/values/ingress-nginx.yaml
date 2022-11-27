@@ -1,0 +1,10 @@
+controller:
+  kind: DaemonSet
+  dnsPolicy: ClusterFirstWithHostNet
+  hostNetwork: true
+  reportNodeInternalIp: true
+  watchIngressWithoutClass: true
+  service:
+    enableHttp: false
+  metrics:
+    enabled: true

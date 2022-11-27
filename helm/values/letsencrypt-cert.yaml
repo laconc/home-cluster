@@ -1,0 +1,5 @@
+cloudflare:
+  email: cloudflare@64f.dev
+
+letsencrypt:
+  email: letsencrypt@64f.dev
