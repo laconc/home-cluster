@@ -1,0 +1,7 @@
+prometheus:
+  scrapeAnnotations: true
+  prometheusRule:
+    enabled: true
+
+speaker:
+  enabled: false

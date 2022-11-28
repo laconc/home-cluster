@@ -2,9 +2,11 @@
 
 The tooling required to spin up a home network running in Kubernetes. This is a bare metal deployment to some Raspberry Pis. The services are all available through HTTPS and only from inside the network.
 
+## Core Components
+
 ## External Dependencies
 
- * A domain hosted at Cloudflare, or at least able to manage its DNS records
+ * Cloudflare manages the DNS records for my domain. In conjunction with `cert-manager`, this allows me to generate Let's Encrypt TLS certificates and perform DNS domain validation for free and automatically.
 
 ## Ansible
 
@@ -42,7 +44,7 @@ Once the cluster is up, we'll install the in-cluster apps with Helm. We're using
 
 ```bash
 pushd helm
-helmfile sync -f
+helmfile sync
 popd
 ```
 

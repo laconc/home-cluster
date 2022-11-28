@@ -6,5 +6,6 @@ controller:
   watchIngressWithoutClass: true
   service:
     enableHttp: false
+    loadBalancerIP: 10.4.0.224
   metrics:
     enabled: true
