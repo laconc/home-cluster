@@ -12,6 +12,12 @@
     name: ufw
     state: present
 
+# Remove any potentially existing firewall rules
+- name: Reset ufw rules
+  become: true
+  ufw:
+    state: reset
+
 # Rate limits SSH attempts
 - name: Limit ssh
   become: true
@@ -21,6 +27,14 @@
     proto: tcp
 
 # Firewall rules
+- name: Allow BGP
+  become: true
+  ufw:
+    rule: allow
+    port: 179
+    proto: tcp
+    src: '10.0.0.1/32'
+
 - name: Allow some access from the main VLAN
   become: true
   ufw:

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: powerdns-recursor
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: "10.4.0.226"
+  labels:
+    app.kubernetes.io/name: powerdns-recursor
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app.kubernetes.io/name: powerdns-recursor
+  ports:
+    - name: dns
+      port: 53
+      targetPort: dns-tcp
+      protocol: TCP
+    - name: dns-udp
+      port: 53
+      targetPort: dns-udp
+      protocol: UDP
+    - name: webserver
+      port: 8082
+      targetPort: webserver

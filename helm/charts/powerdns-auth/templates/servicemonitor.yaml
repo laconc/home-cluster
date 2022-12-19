@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: powerdns-auth
+  labels:
+    app.kubernetes.io/name: powerdns-auth
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: powerdns-auth
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.namespace }}
+  endpoints:
+    - port: webserver

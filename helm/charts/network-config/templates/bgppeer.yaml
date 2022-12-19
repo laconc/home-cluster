@@ -1,0 +1,8 @@
+apiVersion: metallb.io/v1beta2
+kind: BGPPeer
+metadata:
+  name: udm-se
+spec:
+  myASN: 64512
+  peerASN: 65510
+  peerAddress: 10.0.0.1

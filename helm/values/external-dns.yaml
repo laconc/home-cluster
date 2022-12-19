@@ -1,0 +1,17 @@
+image:
+  registry: k8s.gcr.io
+  repository: external-dns/external-dns
+  tag: v0.13.1
+
+sources:
+  - ingress
+
+provider: pdns
+
+pdns:
+  apiUrl: http://10.4.0.227
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

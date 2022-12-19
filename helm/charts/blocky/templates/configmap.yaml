@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: blocky
+  name: blocky
+data:
+  config.yml: |
+    upstream:
+      default:
+        - 10.4.0.226
+    blocking:
+      blackLists:
+        ads:
+          - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+      clientGroupsBlock:
+        default:
+          - ads
+    port: 53
+    httpPort: 4000
+    prometheus:
+      enable: true
+      path: /metrics

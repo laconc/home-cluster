@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: powerdns-auth
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: "10.4.0.227"
+  labels:
+    app.kubernetes.io/name: powerdns-auth
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app.kubernetes.io/name: powerdns-auth
+  ports:
+    - name: dns
+      port: 53
+      targetPort: dns-tcp
+      protocol: TCP
+    - name: dns-udp
+      port: 53
+      targetPort: dns-udp
+      protocol: UDP
+    - name: webserver
+      port: 8081
+      targetPort: webserver

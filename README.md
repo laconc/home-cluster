@@ -6,7 +6,8 @@ The tooling required to spin up a home network running in Kubernetes. This is a 
 
 ## External Dependencies
 
- * Cloudflare manages the DNS records for my domain. In conjunction with `cert-manager`, this allows me to generate Let's Encrypt TLS certificates and perform DNS domain validation for free and automatically.
+* Cloudflare manages the DNS records for my domain. In conjunction with `cert-manager`, this allows me to generate Let's Encrypt TLS certificates and perform DNS domain validation for free and automatically.
+* A router that can be configured to use BGP, such as the Ubiquiti UDM-SE. ([Instructions.](ROUTER.md))
 
 ## Ansible
 
@@ -50,7 +51,13 @@ popd
 
 ## Available Routes
 
+* `adguard.64f.dev`
 * `alertmanager.64f.dev`
 * `grafana.64f.dev`
+* `hubble.64f.dev`
 * `longhorn.64f.dev`
 * `prometheus.64f.dev`
+
+## Notes
+
+* At [https://github.com/laconc/pdns](https://github.com/laconc/pdns), we're building custom images for the PowerDNS services. The images are being built for ARM64 and the webserver password has been removed to simplify scraping metrics with Prometheus. We've also fixed an issue preventing the `auth` image from building successfully.

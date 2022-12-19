@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: powerdns-auth
+  name: powerdns-auth
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: powerdns-auth
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: powerdns-auth
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      securityContext:
+        fsGroup: 953
+      initContainers:
+        - name: init-db
+          image: laconc/pdns-auth:4.7.4
+          command:
+            - bash
+            - -c
+          args:
+            - |
+              db_file="/var/lib/powerdns/pdns.sqlite3"
+              original_db_file="/usr/local/share/doc/pdns/schema.sqlite3.sql"
+              if [ ! -f $db_file ]; then
+                sqlite3 $db_file < $original_db_file
+              fi
+          volumeMounts:
+            - mountPath: /var/lib/powerdns
+              name: powerdns-auth
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: powerdns-auth
+          image: laconc/pdns-auth:4.7.4
+          args:
+            - --setuid=953
+            - --setgid=953
+            - --dnsupdate=yes
+            - --allow-dnsupdate-from=10.4.0.192/26 # TODO limit to ExternalDNS service
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PDNS_AUTH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: powerdns-auth
+                  key: api_key
+          ports:
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: webserver
+              containerPort: 8081
+          livenessProbe:
+            failureThreshold: 5
+            tcpSocket:
+              port: webserver
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            tcpSocket:
+              port: webserver
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /var/lib/powerdns
+              name: powerdns-auth
+      volumes:
+        - name: powerdns-auth
+          persistentVolumeClaim:
+            claimName: powerdns-auth

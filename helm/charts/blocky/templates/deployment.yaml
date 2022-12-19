@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: blocky
+  name: blocky
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: blocky
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: blocky
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      containers:
+        - name: blocky
+          image: ghcr.io/0xerr0r/blocky:v0.20
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: BLOCKY_CONFIG_FILE
+              value: /app/config/config.yml
+          ports:
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: web
+              containerPort: 4000
+          livenessProbe:
+            failureThreshold: 5
+            tcpSocket:
+              port: web
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            tcpSocket:
+              port: web
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          volumeMounts:
+            - mountPath: /app/config
+              name: blocky-config
+      volumes:
+        - name: blocky-config
+          configMap:
+            name: blocky

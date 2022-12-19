@@ -1,7 +1,11 @@
 prometheus:
-  scrapeAnnotations: true
+  namespace: ops
+  serviceAccount: prometheus-kube-prometheus-operator
+  serviceMonitor:
+    enabled: true
   prometheusRule:
     enabled: true
 
-speaker:
-  enabled: false
+#speaker:
+#  frr:
+#    enabled: true

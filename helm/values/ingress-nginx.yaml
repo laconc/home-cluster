@@ -1,11 +1,14 @@
 controller:
-  kind: DaemonSet
   dnsPolicy: ClusterFirstWithHostNet
   hostNetwork: true
   reportNodeInternalIp: true
   watchIngressWithoutClass: true
   service:
     enableHttp: false
-    loadBalancerIP: 10.4.0.224
+    externalTrafficPolicy: Local
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: "10.4.0.224"
   metrics:
     enabled: true
+    serviceMonitor:
+      enabled: true

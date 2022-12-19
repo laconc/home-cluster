@@ -17,7 +17,7 @@
       run_once: true
 
     - name: Cluster init
-      shell: 'kubeadm init --pod-network-cidr 10.44.0.0/16 --token {{ kubeadm_token.stdout }}'
+      shell: 'kubeadm init --pod-network-cidr 10.44.0.0/16 --token {{ kubeadm_token.stdout }}' --apiserver-advertise-address {{ control_node_ip }}
       args:
         creates: /etc/kubernetes/kubelet.conf
 

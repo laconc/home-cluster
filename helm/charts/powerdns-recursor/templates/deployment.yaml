@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: powerdns-recursor
+  name: powerdns-recursor
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: powerdns-recursor
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: powerdns-recursor
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      containers:
+        - name: powerdns-recursor
+          image: laconc/pdns-recursor:4.7.4
+          imagePullPolicy: IfNotPresent
+          args:
+            - --setuid=953
+            - --setgid=953
+            - --forward-zones=64f.dev=10.4.0.227
+          env:
+            - name: PDNS_RECURSOR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: powerdns-recursor
+                  key: api_key
+          ports:
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: webserver
+              containerPort: 8082
+          livenessProbe:
+            failureThreshold: 5
+            tcpSocket:
+              port: webserver
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            tcpSocket:
+              port: webserver
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          securityContext:
+            runAsUser: 0

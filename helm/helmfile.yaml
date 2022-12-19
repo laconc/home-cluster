@@ -1,6 +1,8 @@
 repositories:
-  - name: projectcalico
-    url: https://projectcalico.docs.tigera.io/charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: cilium
+    url: https://helm.cilium.io/
   - name: prometheus-community
     url: https://prometheus-community.github.io/helm-charts
   - name: longhorn
@@ -9,8 +11,6 @@ repositories:
     url: https://charts.jetstack.io
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
-  - name: truecharts
-    url: https://library-charts.truecharts.org
   - name: metallb
     url: https://metallb.github.io/metallb
 
@@ -24,22 +24,24 @@ templates:
       - ./secrets/{{`{{.Release.Name}}`}}.yaml
 
 releases:
-  - name: calico
+  - name: cilium
     <<: *defaults
-    chart: projectcalico/tigera-operator
-    version: 3.24.5
+    chart: cilium/cilium
+    version: 1.12.4
 
   - name: metallb
     <<: *defaults
     chart: metallb/metallb
     version: 0.13.7
+    needs:
+      - prometheus
 
   - name: network-config
     <<: *defaults
     chart: ./charts/network-config
     version: 0.0.1
     needs:
-      - calico
+      - cilium
       - metallb
 
   - name: longhorn
@@ -72,9 +74,42 @@ releases:
     needs:
       - longhorn-system/longhorn
 
-  - name: adguard-home
+  - name: longhorn-metrics
     <<: *defaults
-    chart: truecharts/adguard-home
-    version: 3.0.2
+    chart: ./charts/longhorn-metrics
+    version: 0.0.1
+    namespace: longhorn-system
+    needs:
+      - longhorn
+
+  - name: blocky
+    <<: *defaults
+    chart: ./charts/blocky
+    version: 0.0.1
+    namespace: blocky
     needs:
       - longhorn-system/longhorn
+
+  - name: powerdns-auth
+    <<: *defaults
+    chart: ./charts/powerdns-auth
+    version: 0.0.1
+    namespace: powerdns
+    needs:
+      - longhorn-system/longhorn
+
+  - name: powerdns-recursor
+    <<: *defaults
+    chart: ./charts/powerdns-recursor
+    version: 0.0.1
+    namespace: powerdns
+    needs:
+      - longhorn-system/longhorn
+
+  - name: external-dns
+    <<: *defaults
+    chart: bitnami/external-dns
+    version: 6.12.1
+    namespace: powerdns
+    needs:
+      - powerdns-auth

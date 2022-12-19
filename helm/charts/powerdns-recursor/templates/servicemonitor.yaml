@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: powerdns-recursor
+  labels:
+    app.kubernetes.io/name: powerdns-recursor
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: powerdns-recursor
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.namespace }}
+  endpoints:
+    - port: webserver

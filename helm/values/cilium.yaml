@@ -1,0 +1,37 @@
+disableEnvoyVersionCheck: true
+
+hubble:
+  metrics:
+    enabled:
+      - dns:query;ignoreAAAA
+      - drop
+      - tcp
+      - flow
+      - icmp
+      - http
+      - port-distribution
+    serviceMonitor:
+      enabled: true
+
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - hubble.64f.dev
+      tls:
+        - secretName: hubble.local-tls
+          hosts:
+            - hubble.64f.dev
+
+ipam:
+  mode: kubernetes
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
