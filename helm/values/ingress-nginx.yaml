@@ -1,6 +1,4 @@
 controller:
-  dnsPolicy: ClusterFirstWithHostNet
-  hostNetwork: true
   reportNodeInternalIp: true
   watchIngressWithoutClass: true
   service:

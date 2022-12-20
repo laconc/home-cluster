@@ -16,8 +16,6 @@ spec:
       labels:
         app.kubernetes.io/name: blocky
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: true
       containers:
         - name: blocky
           image: ghcr.io/0xerr0r/blocky:v0.20
